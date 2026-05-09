@@ -8,28 +8,18 @@
 
 ## 🚀 One-Click Setup with Hermes Agent
 
-Send this repo to Hermes and it will deploy the entire three-tier defense:
+**Copy this message → paste it into your Hermes chat → done.**
 
-> *"Set up the three-tier defense from https://github.com/Hello-Pig/hermes-defense-tiers on this machine."*
+```
+Deploy the three-tier defense architecture from https://github.com/Hello-Pig/hermes-defense-tiers on this machine.
 
-Or manually — **3 commands, 30 seconds**:
-
-```bash
-# 1. Install watchdog script
-cp gateway-watchdog.sh ~/.hermes/scripts/ && chmod +x ~/.hermes/scripts/gateway-watchdog.sh
-
-# 2. Deploy the cron watchdog (no_agent mode — zero token cost)
-hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
-
-# 3. Install systemd service (adjust paths in hermes-gateway.service first)
-cp hermes-gateway.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now hermes-gateway
+1. Read the README to understand the architecture, then copy gateway-watchdog.sh to ~/.hermes/scripts/ and chmod +x it.
+2. Run: hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
+3. Read hermes-gateway.service, auto-detect this machine's Hermes venv path and working directory, update ExecStart/WorkingDirectory accordingly, then install it to ~/.config/systemd/user/, daemon-reload, and enable --now.
+4. Finally, verify all 3 tiers: systemctl --user is-active hermes-gateway, cron list shows the watchdog job, and the script runs without errors.
 ```
 
-> ⚠️ Before step 3, edit `hermes-gateway.service` to update `ExecStart` and `WorkingDirectory` to your Hermes installation paths.
-
-**That's it.** Three independent defense layers, fully active. If your Gateway goes down, it comes back — automatically.
+> Hermes will auto-detect your paths, set everything up, and verify each tier. No manual editing needed.
 
 ---
 

@@ -8,28 +8,18 @@
 
 ## 🚀 Hermes 一键接入
 
-把本仓库发给 Hermes，它会自动部署整套三道防线：
+**复制这段话 → 发到 Hermes 聊天窗口 → 搞定。**
 
-> *"帮我部署 https://github.com/Hello-Pig/hermes-defense-tiers 里的三道防线"*
+```
+帮我部署 https://github.com/Hello-Pig/hermes-defense-tiers 里的三道防线：
 
-或者手动 —— **3 条命令，30 秒搞定**：
-
-```bash
-# 1. 安装 watchdog 脚本
-cp gateway-watchdog.sh ~/.hermes/scripts/ && chmod +x ~/.hermes/scripts/gateway-watchdog.sh
-
-# 2. 部署 cron watchdog（no_agent 模式，零 token 消耗）
-hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
-
-# 3. 安装 systemd 服务（先修改 hermes-gateway.service 中的路径）
-cp hermes-gateway.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now hermes-gateway
+1. 先读 README 理解架构，然后把 gateway-watchdog.sh 复制到 ~/.hermes/scripts/ 并 chmod +x。
+2. 执行：hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
+3. 读取 hermes-gateway.service，自动检测本机 Hermes 的 venv 路径和工作目录，修改 ExecStart 和 WorkingDirectory，然后安装到 ~/.config/systemd/user/，daemon-reload，enable --now。
+4. 最后验证三道防线全部生效：systemctl --user is-active hermes-gateway、cron list 能看到 job、脚本无报错。
 ```
 
-> ⚠️ 第 3 步前，记得把 `hermes-gateway.service` 里的 `ExecStart` 和 `WorkingDirectory` 改成你自己的 Hermes 安装路径。
-
-**搞定。** 三道独立防线全部就位。Gateway 挂了会自动恢复，你无感。
+> Hermes 会自动检测你的路径、完成部署并验证。无需手动改配置。
 
 ---
 
