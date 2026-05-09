@@ -6,6 +6,33 @@
 
 ---
 
+## 🚀 Hermes 一键接入
+
+把本仓库发给 Hermes，它会自动部署整套三道防线：
+
+> *"帮我部署 https://github.com/Hello-Pig/hermes-defense-tiers 里的三道防线"*
+
+或者手动 —— **3 条命令，30 秒搞定**：
+
+```bash
+# 1. 安装 watchdog 脚本
+cp gateway-watchdog.sh ~/.hermes/scripts/ && chmod +x ~/.hermes/scripts/gateway-watchdog.sh
+
+# 2. 部署 cron watchdog（no_agent 模式，零 token 消耗）
+hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
+
+# 3. 安装 systemd 服务（先修改 hermes-gateway.service 中的路径）
+cp hermes-gateway.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-gateway
+```
+
+> ⚠️ 第 3 步前，记得把 `hermes-gateway.service` 里的 `ExecStart` 和 `WorkingDirectory` 改成你自己的 Hermes 安装路径。
+
+**搞定。** 三道独立防线全部就位。Gateway 挂了会自动恢复，你无感。
+
+---
+
 ## 1. 问题：AI Agent 凭什么不能挂？
 
 Hermes Agent 是一个跑在 Linux 服务器上的开源 AI Agent 框架，通过 Telegram/微信/飞书等多平台网关与用户交互。它是用户的「数字助手」——能执行命令、写代码、部署服务、回复消息。

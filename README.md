@@ -6,6 +6,33 @@
 
 ---
 
+## 🚀 One-Click Setup with Hermes Agent
+
+Send this repo to Hermes and it will deploy the entire three-tier defense:
+
+> *"Set up the three-tier defense from https://github.com/Hello-Pig/hermes-defense-tiers on this machine."*
+
+Or manually — **3 commands, 30 seconds**:
+
+```bash
+# 1. Install watchdog script
+cp gateway-watchdog.sh ~/.hermes/scripts/ && chmod +x ~/.hermes/scripts/gateway-watchdog.sh
+
+# 2. Deploy the cron watchdog (no_agent mode — zero token cost)
+hermes cron create 2m --name "Gateway Watchdog" --script gateway-watchdog.sh --no-agent
+
+# 3. Install systemd service (adjust paths in hermes-gateway.service first)
+cp hermes-gateway.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-gateway
+```
+
+> ⚠️ Before step 3, edit `hermes-gateway.service` to update `ExecStart` and `WorkingDirectory` to your Hermes installation paths.
+
+**That's it.** Three independent defense layers, fully active. If your Gateway goes down, it comes back — automatically.
+
+---
+
 ## 1. The Problem: Why Your AI Agent Must Not Go Down
 
 [Hermes Agent](https://github.com/NousResearch/hermes-agent) is an open-source AI agent framework that runs on Linux servers, interacting with users via Telegram, WeChat, Feishu, and other messaging platforms. It's your "digital assistant" — executing commands, writing code, deploying services, replying to messages.
