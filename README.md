@@ -90,11 +90,11 @@ Mapped to our architecture:
 │  ┌──────────────────────────────────────────────────┐   │
 │  │ Tier 1: systemd Process Guardian (OS-Level)       │   │
 │  │ • Restart=always                                  │   │
-│  │ • RestartSec=10s (fast retry)                     │   │
+│  │ • RestartSec=30s (fast retry)                     │   │
 │  │ • No restart rate limit (we handle it ourselves)  │   │
 │  │ • OOMScoreAdjust=-500 (protect from OOM Killer)   │   │
 │  └──────────────────────┬───────────────────────────┘   │
-│                         │ Process crash → restart in 10s │
+│                         │ Process crash → restart in 30s │
 │                         ▼                               │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │ Tier 2: Watchdog Script (Process-Level)           │   │
@@ -135,7 +135,7 @@ StartLimitIntervalSec=0       # No rate-limit ceiling
 Type=simple
 ExecStart=/path/to/hermes/venv/bin/python -m hermes_cli.main gateway run --replace
 Restart=always                 # Restart regardless of exit reason
-RestartSec=10                  # 10s between retries (not default 100ms)
+RestartSec=30                  # 30s between retries (not default 100ms)
 RestartMaxDelaySec=300         # Exponential backoff cap
 RestartSteps=5                 # Ramp delay over 5 steps
 KillMode=mixed
@@ -151,7 +151,7 @@ WantedBy=default.target
 
 | Parameter | Default | Our Value | Why |
 |-----------|---------|-----------|-----|
-| `RestartSec` | 100ms | **10s** | Too fast → port not released. Too slow → user waits |
+| `RestartSec` | 100ms | **30s** | Too fast → port not released. Too slow → user waits |
 | `RestartMaxDelaySec` | unlimited | **300s** | Prevents unbounded backoff. Caps at 60s after 5 min |
 | `StartLimitIntervalSec` | 10s | **0 (disabled)** | We have our own restart-storm protection (Tier 2) |
 | `OOMScoreAdjust` | 0 | **-500** | Kill other processes first, protect the Gateway |
@@ -162,7 +162,7 @@ WantedBy=default.target
 ### Result
 
 ```
-Gateway crashes → systemd auto-restarts in 10s → user doesn't notice
+Gateway crashes → systemd auto-restarts in 30s → user doesn't notice
 ```
 
 But systemd has a blind spot: **a process that's alive but unresponsive (zombie process)**. That's Tier 2's job.
@@ -323,8 +323,8 @@ A real failure timeline:
 ```
 T+0s    Gateway crashes (Python dependency conflict)
         │
-T+10s   【Tier 1】systemd detects process exit
-        RestartSec=10s → auto-restart
+T+30s   【Tier 1】systemd detects process exit
+        RestartSec=30s → auto-restart
         ├─ Success → back to normal, user unaware
         └─ Failure (port still bound / bad dependency)
         │
@@ -396,7 +396,7 @@ Reliability ∝ Feedback Speed × Redundancy Layers × Diagnostic Precision
 
 | Dimension | Our Implementation |
 |-----------|-------------------|
-| **Feedback Speed** | systemd 10s restart + Watchdog 120s check → recovery in as fast as 10s |
+| **Feedback Speed** | systemd 30s restart + Watchdog 120s check → recovery in as fast as 30s |
 | **Redundancy** | 3 independent tiers, no single point of failure |
 | **Diagnostics** | Watchdog captures logs, memory, disk, OOM, Docker context before restart |
 | **Economics** | `no_agent` mode = zero token cost |

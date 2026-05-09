@@ -12,7 +12,7 @@ Environment="PATH=/root/.hermes/hermes-agent/venv/bin:/root/.hermes/hermes-agent
 Environment="VIRTUAL_ENV=/root/.hermes/hermes-agent/venv"
 Environment="HERMES_HOME=/root/.hermes"
 Restart=always
-RestartSec=60
+RestartSec=30
 RestartMaxDelaySec=300
 RestartSteps=5
 RestartForceExitStatus=75
